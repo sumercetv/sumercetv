@@ -1,0 +1,15 @@
+import Link from 'next/link';
+import { requireAdmin } from '@/lib/auth';
+export default async function Dashboard(){
+  const db=await requireAdmin();
+  const cutoff=new Date();cutoff.setDate(cutoff.getDate()-30);
+  const [leads,services,campaigns,events]=await Promise.all([
+    db.from('leads').select('*',{count:'exact',head:true}).eq('status','nuevo'),
+    db.from('services').select('*',{count:'exact',head:true}).eq('published',true),
+    db.from('campaigns').select('*',{count:'exact',head:true}).eq('published',true).eq('authorized',true).lte('starts_at',new Date().toISOString()).gt('ends_at',new Date().toISOString()),
+    db.from('ad_events').select('kind,campaign_id,day').gte('day',cutoff.toISOString().slice(0,10)).order('created_at',{ascending:false}).limit(10000)
+  ]);
+  const failed=[leads,services,campaigns,events].some(r=>r.error);
+  const metrics=events.data??[];
+  return <><div className="admin-title"><div><span className="eyebrow">SUMERCÉ TV / Administración</span><h1>Todo empieza aquí.</h1><p>Gestiona el contenido y las conexiones comerciales del canal.</p></div></div>{failed&&<p className="notice" role="alert">No se pudieron consultar todos los datos. Comprueba las migraciones y los permisos.</p>}<div className="admin-stats"><Link href="/admin/leads" className="stat"><strong>{leads.count??'—'}</strong><span>Solicitudes nuevas</span></Link><Link href="/admin/services" className="stat"><strong>{services.count??'—'}</strong><span>Servicios publicados</span></Link><Link href="/admin/campaigns" className="stat"><strong>{campaigns.count??'—'}</strong><span>Campañas vigentes</span></Link></div><section className="section"><h2>Actividad publicitaria.</h2><p className="form-hint">Últimos 30 días · hasta 10.000 eventos recientes. Impresiones con al menos 50 % del anuncio visible durante 1 segundo. Se deduplican por campaña, sesión, tipo y día de Colombia. No representan televidentes únicos ni una medición certificada.</p><div className="admin-stats"><div className="stat"><strong>{metrics.filter(e=>e.kind==='impression').length}</strong><span>Impresiones visibles registradas</span></div><div className="stat"><strong>{metrics.filter(e=>e.kind==='click').length}</strong><span>Clics registrados</span></div></div><div className="admin-table-wrap" style={{marginTop:20}}><table><thead><tr><th>Campaña</th><th>Impresiones</th><th>Clics</th></tr></thead><tbody>{[...new Set(metrics.map(e=>e.campaign_id))].map(id=><tr key={id}><td><Link href={`/admin/campaigns/${id}`}>{id.slice(0,8)}…</Link></td><td>{metrics.filter(e=>e.campaign_id===id&&e.kind==='impression').length}</td><td>{metrics.filter(e=>e.campaign_id===id&&e.kind==='click').length}</td></tr>)}</tbody></table></div></section><section><h2>Antes de publicar.</h2><p>Aprueba los textos institucionales, completa los datos comerciales y el aviso de tratamiento de datos en <Link className="inline-link" href="/admin/site_settings">Ajustes generales</Link>. La señal se configura en <Link className="inline-link" href="/admin/stream_config">Señal de televisión</Link>.</p></section></>;
+}

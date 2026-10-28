@@ -1,0 +1,6 @@
+/* Reservar el alto del material publicitario incluso antes de cargar la imagen. */
+.campaign-card img {
+  display: block;
+  height: clamp(140px, 28vw, 300px);
+  object-fit: contain;
+}

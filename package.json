@@ -1,0 +1,49 @@
+{
+  "name": "sumerce-tv",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "prebuild": "node scripts/extract-original-logo.mjs && node scripts/prepare-brand.mjs",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit --incremental false",
+    "pretest": "tsc --noEmit --incremental false",
+    "test": "tsx --test tests/*.test.ts",
+    "test:browser": "node --test tests/browser.smoke.mjs",
+    "audit": "node --test tests/performance.audit.mjs",
+    "assets": "node scripts/prepare-brand.mjs"
+  },
+  "dependencies": {
+    "@supabase/ssr": "0.12.7",
+    "@supabase/supabase-js": "2.118.0",
+    "hls.js": "1.7.3",
+    "next": "16.4.3",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "server-only": "0.0.1",
+    "sharp": "0.35.5",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@axe-core/playwright": "4.14.0",
+    "lighthouse": "13.6.0",
+    "@electric-sql/pglite": "0.5.13",
+    "@tailwindcss/postcss": "4.3.3",
+    "@types/node": "26.6.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.3",
+    "tailwindcss": "4.3.3",
+    "tsx": "4.23.15",
+    "typescript": "6.0.3"
+  },
+  "optionalDependencies": {
+    "lightningcss-win32-x64-msvc": "1.32.0",
+    "@tailwindcss/oxide-win32-x64-msvc": "4.3.3",
+    "@next/swc-win32-x64-msvc": "16.4.3"
+  }
+}

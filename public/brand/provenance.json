@@ -1,0 +1,7 @@
+{
+  "original": "sumerce_tv_logoeditable.png",
+  "original_sha256": "30a84d6094647244d2c7ae8401c2e7aad3aef0694f51556b795653c11ef1d015",
+  "method": "Se evaluó image_gen y se descartó su recorte por alterar el relieve. Resultado final: máscara exterior por conectividad sobre los píxeles del original, sin redibujar. Exportaciones con sharp.",
+  "prompt": "Eliminar solo el fondo exterior blanco. Preservar letras, colores, bordes y blancos internos; exportar con transparencia real.",
+  "sourceWidth": 435
+}
