@@ -13,6 +13,8 @@ test('Páginas públicas: SSR, SEO, móvil, accesibilidad y estado sin conexione
       const html=await response.text();assert.match(html,/<html[^>]+lang="es-CO"/);assert.match(html,/rel="canonical"/);assert.match(html,/property="og:image"/);assert.equal((html.match(/<h1[ >]/g)||[]).length,1);
     }
     const admin=await fetch(preview.url+'/admin',{redirect:'manual'});assert.ok([307,308].includes(admin.status));assert.match(admin.headers.get('location')||'',/\/admin\/login/);
+    const media=await fetch(preview.url+'/api/media',{redirect:'manual'});assert.ok([307,308].includes(media.status));assert.match(media.headers.get('location')||'',/\/admin\/login/);
+    const mediaCsrf=await fetch(preview.url+'/api/media',{method:'POST',headers:{origin:'https://invalid.example'}});assert.equal(mediaCsrf.status,403);
     const robots=await(await fetch(preview.url+'/robots.txt')).text();assert.match(robots,/Disallow: \/admin/);
     const sitemap=await(await fetch(preview.url+'/sitemap.xml')).text();assert.doesNotMatch(sitemap,/\/admin/);assert.equal((sitemap.match(/<url>/g)||[]).length,4);
     const csrf=await fetch(preview.url+'/api/leads',{method:'POST',headers:{origin:'https://invalid.example','Content-Type':'application/json'},body:'{}'});assert.equal(csrf.status,403);
@@ -40,6 +42,10 @@ test('Páginas públicas: SSR, SEO, móvil, accesibilidad y estado sin conexione
       }
       assert.deepEqual(errors,[],'Errores de JavaScript');await context.close();
     }
+    const reduced=await browser.newContext({reducedMotion:'reduce'});const motionPage=await reduced.newPage();await motionPage.goto(preview.url+'/servicios');
+    assert.equal(await motionPage.locator('.route-entry').evaluate(el=>getComputedStyle(el).animationName),'none');
+    await motionPage.getByRole('navigation',{name:'Principal',exact:true}).getByRole('link',{name:'Contacto',exact:true}).click();await motionPage.waitForURL('**/contacto');
+    assert.equal(await motionPage.getByRole('navigation',{name:'Principal',exact:true}).getByRole('link',{name:'Contacto',exact:true}).getAttribute('aria-current'),'page');await reduced.close();
     const nojs=await browser.newContext({javaScriptEnabled:false});const page=await nojs.newPage();await page.goto(preview.url);assert.ok((await page.locator('main').innerText()).includes('Una señal que nos conecta.'));await nojs.close();
     await writeFile('test-results/browser-summary.json',JSON.stringify(results,null,2));
   }finally{await browser?.close();preview.stop();}

@@ -1,5 +1,38 @@
 # Verificación de la implementación
 
+## Actualización: edición de imágenes y movimiento — 5 de noviembre de 2026
+
+Cambios sobre la integración existente de Next.js y Supabase. No se añadieron dependencias, variables de entorno ni migraciones. Estas mediciones se realizaron en el checkout local; no verifican un despliegue en Vercel.
+
+| Comprobación | Resultado |
+| --- | --- |
+| `npm run lint` | Correcto, sin errores ni advertencias. |
+| `npm run typecheck` | Correcto; también comprobado por `pretest` y el build. |
+| `npm test` | 10 pruebas correctas. Incluyen recorte con píxeles reales, reflejo antes del giro, orientación EXIF, transparencia, límites de tamaño/formato, conservación del original y permisos de lectura/escritura de multimedia en PostgreSQL/PGlite. |
+| `npm run build` | Build de producción correcto. Inicio y Servicios siguen prerenderizados con revalidación de cinco minutos. |
+| `npm run test:browser` | Correcto: escritorio y móvil, SEO/SSR, acceso privado, API multimedia sin sesión, rechazo de origen ajeno, navegación, página activa, movimiento reducido y contenido sin JavaScript. |
+| axe en páginas públicas y login | Sin infracciones A/AA detectadas en las diez revisiones de escritorio y móvil. |
+| Editor de imágenes aislado en navegador | Correcto a 1440 × 900 y 390 × 900: recorte, giro, reflejo, apertura de archivo local, cierre con Escape, prevención de envío accidental del formulario principal con Enter, error de guardado y reintento. Sin errores JavaScript ni desbordamiento horizontal del diálogo; sin infracciones axe A/AA detectadas. Capturas inspeccionadas visualmente. |
+
+La revisión aislada del editor usa su componente real y simula las respuestas de la API para probar errores, estado pendiente y éxito. **No verifica una subida contra el proyecto Supabase gestionado**. El procesamiento con Sharp y las políticas SQL se verifican por separado con datos reales en las pruebas locales. Sigue pendiente comprobar subida, edición y publicación con una cuenta administrativa en el entorno del propietario.
+
+`npm run audit`: Lighthouse móvil sobre el build de producción local, con un proceso Chrome independiente por URL:
+
+| Página | Performance | Accesibilidad | SEO | Buenas prácticas | LCP | CLS |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Inicio | 96 | 100 | 100 | 100 | 1,90 s | 0 |
+| Servicios | 99 | 100 | 100 | 100 | 0,95 s | 0 |
+| En vivo | 98 | 100 | 100 | 100 | 1,00 s | 0 |
+| Contacto | 99 | 100 | 100 | 100 | 1,23 s | 0 |
+
+Estas mediciones son de laboratorio, con los estados vacíos del entorno local y sin consultas a un proyecto Supabase real, señal real ni campañas activas. No verifican el rendimiento de Vercel en producción ni Core Web Vitals de campo. INP no se ha medido. Los informes actuales están en `test-results/lighthouse-*.html` y `lighthouse-summary.json`; la revisión del editor queda en `media-editor-summary.json` y sus capturas dentro de esa misma carpeta ignorada por Git.
+
+Los originales de imagen se conservan: las ediciones crean un archivo nuevo y solo se aplican al contenido al guardar el formulario correspondiente. Las subidas nuevas admiten hasta 4 MB para dejar margen al cuerpo multipart dentro del límite de Vercel; se pueden editar imágenes anteriores del bucket de hasta 5 MB. La API exige autorización administrativa y mantiene RLS. Los controles de carga corresponden a operaciones reales; las animaciones se desactivan con `prefers-reduced-motion`.
+
+## Registro histórico de la implementación inicial
+
+Los resultados que siguen corresponden al 28 de octubre y se conservan como referencia; no sustituyen la validación de esta actualización.
+
 Fecha: 28 de octubre de 2026. Entorno local Windows, Node.js 24.20.0, Next.js 16.4.3. No se ha desplegado un sitio ni conectado un proyecto Supabase del propietario.
 
 ## Comprobaciones ejecutadas

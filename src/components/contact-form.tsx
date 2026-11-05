@@ -23,7 +23,7 @@ export function ContactForm({ initialInterest,options,enabled }: { initialIntere
     <div className="field"><label htmlFor="message">Mensaje *</label><textarea id="message" name="message" required minLength={15} maxLength={3000} rows={5} disabled={!enabled}/><small>Cuéntanos qué necesitas en al menos 15 caracteres.</small></div>
     <div className="honeypot" aria-hidden="true"><label htmlFor="website">Dejar vacío</label><input name="website" id="website" tabIndex={-1} autoComplete="off" defaultValue=""/></div>
     <label className="check-field"><input type="checkbox" name="consent" required disabled={!enabled}/><span>He leído el <a href="#privacidad" className="inline-link">aviso de tratamiento de datos</a> y autorizo el uso de mis datos para gestionar esta solicitud. *</span></label>
-    <button className="button button-yellow" disabled={busy||!enabled} type="submit">{busy?'Enviando solicitud…':'Enviar solicitud'}<Icon/></button>
+    <button className="button button-yellow" disabled={busy||!enabled} type="submit">{busy&&<span className="spinner" aria-hidden="true"/>}{busy?'Enviando solicitud…':'Enviar solicitud'}<Icon/></button>
     {result&&<p className={`notice ${result.ok?'notice-success':''}`} role={result.ok?'status':'alert'}>{result.message}</p>}
   </form>;
 }

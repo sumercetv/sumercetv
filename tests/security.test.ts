@@ -36,11 +36,14 @@ test('Migración: RLS, roles, privacidad, vigencia y limitación atómica',async
     assert.equal((await db.query('select * from public.sponsors')).rows.length,1);
     assert.equal((await db.query('select * from public.campaigns')).rows.length,1);
     await assert.rejects(db.exec('select * from public.leads'));
+    await assert.rejects(db.exec('select * from public.media'));
     await assert.rejects(db.exec("insert into public.leads(name,email,message,consent) values ('X','x@example.com','private',true)"));
     await assert.rejects(db.exec("select public.consume_rate_limit('attack',100,900)"));
     await role('authenticated',user);
     assert.equal((await db.query<{allowed:boolean}>('select public.is_admin() as allowed')).rows[0].allowed,false);
     assert.equal((await db.query('select * from public.leads')).rows.length,0);
+    assert.equal((await db.query('select * from public.media')).rows.length,0);
+    await assert.rejects(db.exec("insert into public.media(name,path,url,mime,bytes,width,height) values ('Ataque','uploads/attack.webp','https://example.com/attack.webp','image/webp',20,1,1)"));
     await assert.rejects(db.exec("insert into public.services(name,description) values ('Attack','Blocked')"));
     await assert.rejects(db.query("insert into public.profiles(id,role) values ($1,'admin')",[user]));
     await assert.rejects(db.exec("insert into storage.objects(bucket_id,name) values ('media','attack.webp')"));
@@ -51,6 +54,8 @@ test('Migración: RLS, roles, privacidad, vigencia y limitación atómica',async
     await db.query('update public.services set published=true where id=$1',[saved.rows[0].id]);
     await db.query('delete from public.services where id=$1',[saved.rows[0].id]);
     await db.exec("insert into storage.objects(bucket_id,name) values ('media','allowed.webp')");
+    await db.exec("insert into public.media(name,path,url,mime,bytes,width,height) values ('Imagen','uploads/test.webp','https://example.com/test.webp','image/webp',20,1,1)");
+    assert.equal((await db.query('select * from public.media')).rows.length,1);
     await assert.rejects(db.exec("insert into storage.objects(bucket_id,name) values ('private','blocked.webp')"));
     await assert.rejects(db.exec('delete from public.profiles'));
     await role('service_role');

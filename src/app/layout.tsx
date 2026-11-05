@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import './media-layout.css';
+import './motion.css';
 import { siteUrl } from '@/lib/seo';
 export const metadata: Metadata = { metadataBase: new URL(siteUrl()), title: 'SUMERCÉ TV', description: 'Sitio de SUMERCÉ TV', icons: { icon: '/favicon.ico', apple: '/brand/apple-touch-icon.png' } };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
