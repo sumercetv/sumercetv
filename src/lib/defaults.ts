@@ -1,9 +1,9 @@
 import type { PageSEO, Section, Settings, Stream } from './types';
 export const defaultSettings: Settings = { facebook: 'https://www.facebook.com/p/Sumerc%C3%A9-TV-61590675422295/', email: '', phone: '', whatsapp: '', institutional: 'La presentación institucional está pendiente de aprobación. Este texto es provisional y editable.', institutional_ready: false, privacy: 'Aviso de tratamiento de datos pendiente de publicación.', privacy_ready: false };
 export const defaultPages: PageSEO[] = [
-  { id: 'inicio', title: 'SUMERCÉ TV | Señal y conexión', description: 'Conoce SUMERCÉ TV, consulta la señal disponible y comunícate con el equipo comercial.' },
+  { id: 'inicio', title: 'SUMERCÉ TV | Televisión en línea y contacto comercial', description: 'Conoce SUMERCÉ TV, consulta la disponibilidad de su señal de televisión en línea y contacta al equipo para información comercial.' },
   { id: 'servicios', title: 'Servicios y planes | SUMERCÉ TV', description: 'Consulta los servicios y planes publicados de SUMERCÉ TV y solicita una propuesta para tu marca.' },
-  { id: 'en-vivo', title: 'Señal de televisión | SUMERCÉ TV', description: 'Accede a la señal de SUMERCÉ TV cuando esté disponible y conoce a nuestros patrocinadores.' },
+  { id: 'en-vivo', title: 'SUMERCÉ TV en vivo | Señal de televisión en línea', description: 'Consulta la disponibilidad de la señal de televisión de SUMERCÉ TV, inicia el reproductor y conoce a los patrocinadores publicados.' },
   { id: 'contacto', title: 'Contacto comercial | SUMERCÉ TV', description: 'Comunícate con SUMERCÉ TV para solicitar información sobre servicios, planes y espacios publicitarios.' }
 ];
 export const defaultSections: Section[] = [

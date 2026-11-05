@@ -1,3 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { siteUrl } from '@/lib/seo';
-export default function sitemap(): MetadataRoute.Sitemap { return ['','/servicios','/en-vivo','/contacto'].map(path=>({ url: `${siteUrl()}${path}`, changeFrequency: 'weekly', priority: path ? .8 : 1 })); }
+import { indexableDeployment, publicPages, publicUrl } from '@/lib/site-config';
+export default function sitemap(): MetadataRoute.Sitemap {
+  return indexableDeployment() ? publicPages.map(page => ({ url: publicUrl(page.path) })) : [];
+}

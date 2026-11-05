@@ -1,10 +1,12 @@
 import Link from 'next/link';
 import { getContent } from '@/lib/content';
-import { pageMetadata, siteUrl } from '@/lib/seo';
+import { pageMetadata } from '@/lib/seo';
+import { pageStructuredData, publicPageDetails } from '@/lib/discovery';
+import { JsonLd } from '@/components/json-ld';
 import { Brand } from '@/components/brand';
 import { Icon } from '@/components/icons';
 import { Empty, ServiceCard, SponsorGrid } from '@/components/cards';
-import { safeExternal, safeLink } from '@/lib/validation';
+import { safeLink } from '@/lib/validation';
 import type { Section } from '@/lib/types';
 export const revalidate = 300;
 export const generateMetadata = () => pageMetadata('inicio','/');
@@ -12,9 +14,8 @@ function SectionButton({ section, primary = false }: { section: Section; primary
   return section.button_label && safeLink(section.button_url) ? <Link href={section.button_url} className={primary ? 'button button-yellow' : 'text-link'}>{section.button_label}<Icon/></Link> : null;
 }
 export default async function Home() {
-  const { settings,sections,services,sponsors } = await getContent();
-  const schema = [{ '@context': 'https://schema.org', '@type': 'Organization', name: 'SUMERCÉ TV', url: siteUrl(), logo: `${siteUrl()}/brand/logo.png`, ...(settings.facebook && safeExternal(settings.facebook) ? { sameAs: [settings.facebook] } : {}) }, { '@context': 'https://schema.org', '@type': 'WebSite', name: 'SUMERCÉ TV', url: siteUrl(), inLanguage: 'es-CO' }];
-  return <><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g,'\\u003c') }}/>{!sections.some(s=>s.key==='hero') && <div className="container page-heading"><h1>SUMERCÉ TV</h1><p>Consulta la señal y comunícate con el equipo comercial.</p></div>}{sections.map(s=>{
+  const { settings,sections,services,sponsors,pages } = await getContent();
+  return <><JsonLd data={pageStructuredData(publicPageDetails(pages,'inicio'))}/>{!sections.some(s=>s.key==='hero') && <div className="container page-heading"><h1>SUMERCÉ TV</h1><p>Consulta la señal y comunícate con el equipo comercial.</p></div>}{sections.map(s=>{
     if(s.key==='hero') return <section className="hero" key={s.id}><div className="container"><div className="hero-grid"><div className="hero-copy"><span className="eyebrow">SUMERCÉ TV · Bienvenidos a nuestra señal</span><h1>{s.title}</h1><p>{s.body}</p><div className="actions"><Link href="/en-vivo" className="button button-yellow"><Icon name="play" size={18}/>Ver señal</Link><SectionButton section={s}/></div><span className="hero-note"><Icon name="signal" size={17}/>Televisión y nuevas posibilidades para tu marca</span></div><div className="hero-screen" aria-label="Identidad de SUMERCÉ TV"><div className="screen-frame"><div className="screen-content"><Brand large priority/><span className="screen-caption">Una señal que nos conecta</span></div><div className="screen-footer"><span>SUMERCÉ TV / SEÑAL DIGITAL</span><Icon name="signal" size={18}/></div></div><span className="screen-sticker">Sintoniza nuevas posibilidades ↗</span></div></div><div className="hero-bottom"><span><Icon name="signal" size={18}/>Conecta con nuestra señal</span><span>Conoce el canal / Descubre nuestros espacios</span><span>Desliza para explorar ↓</span></div></div></section>;
     if(s.key==='intro') return <section className="section section-wash" key={s.id}><div className="container split"><div><span className="eyebrow">Somos SUMERCÉ TV</span><h2>{s.title}</h2><p>{s.body}</p></div><div><p>{settings.institutional}</p>{!settings.institutional_ready&&<p className="provisional">Información institucional editable · pendiente de aprobación.</p>}<SectionButton section={s}/></div></div></section>;
     if(s.key==='services') return <section className="section" key={s.id}><div className="container"><div className="section-head"><div><span className="eyebrow">Un espacio para tus ideas</span><h2>{s.title}</h2></div><SectionButton section={s}/></div><p>{s.body}</p>{services.length ? <div className="card-grid">{services.slice(0,3).map((service,index)=><ServiceCard key={service.id} service={service} index={index}/>)}</div> : <Empty title="Estamos preparando nuestro portafolio.">Los servicios se mostrarán cuando el equipo los publique. Mientras tanto, puedes solicitar información comercial.</Empty>}</div></section>;

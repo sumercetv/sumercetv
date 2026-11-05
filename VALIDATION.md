@@ -1,5 +1,32 @@
 # Verificación de la implementación
 
+## Actualización: SEO y lectura por LLMs — 5 de noviembre de 2026
+
+Se corrigió la configuración que apuntaba canonical y sitemap a `sumercetv.com` antes de conectar ese dominio. El origen actual es `https://sumercetv.vercel.app`, con selección del dominio estable de producción de Vercel y override opcional `SITE_URL`. Se añadieron datos estructurados enlazados para organización, sitio, páginas y breadcrumbs; encabezados descriptivos; soporte de verificación Google/Bing; exclusión de previews e interfaces privadas; `/llms.txt` y `/llms-full.txt` derivados del contenido público. La futura redirección 308 al dominio final solo coincide con el host temporal exacto y se activa al seleccionar `.com` en producción.
+
+| Comprobación | Resultado |
+| --- | --- |
+| `npm run lint` | Correcto. También se revisaron específicamente configuración, generación de texto y pruebas nuevas. |
+| TypeScript mediante `npm test` y build | Correcto. |
+| `npm test` | 16 pruebas correctas. Incluyen selección y validación de origen, protección de previews, formularios locales y de preview, redirección limitada al host temporal, JSON-LD seguro y exclusión de borradores, leads y URLs técnicas en el texto para IA. |
+| `npm run build` | Build de producción correcto; Inicio y Servicios siguen prerenderizados con revalidación de cinco minutos. |
+| `npm run test:browser` | Correcto en 1440 × 1000 y 390 × 844. Verifica canonical del temporal, JSON-LD, sitemap, robots, archivos de texto, navegación, privacidad y contenido de las cuatro páginas sin JavaScript. Sin infracciones axe A/AA detectadas en las diez revisiones. |
+
+La primera prueba de navegador agotó el plazo de arranque local de 60 segundos. Se limitó cada solicitud de comprobación y se amplió el presupuesto total a aproximadamente dos minutos. También se corrigió una aserción para normalizar el `/` implícito de la URL raíz que Next.js serializa sin barra. La revisión posterior pasó; la captura móvil de Servicios se inspeccionó visualmente.
+
+`npm run audit`, Lighthouse móvil sobre producción local con un proceso Chrome independiente por URL:
+
+| Página | Performance | Accesibilidad | SEO | Buenas prácticas | LCP | CLS |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Inicio | 77 | 100 | 100 | 100 | 3,96 s | 0 |
+| Servicios | 99 | 100 | 100 | 100 | 1,39 s | 0 |
+| En vivo | 81 | 100 | 100 | 100 | 2,76 s | 0 |
+| Contacto | 98 | 100 | 100 | 100 | 1,34 s | 0 |
+
+Inicio y En vivo no alcanzaron el objetivo orientativo de Performance en esta corrida. El informe identifica el logo del hero como LCP de Inicio y el H1 como LCP de En vivo; sus demoras no permiten atribuir la variación a una sola causa. Los resultados se conservan en `test-results/lighthouse-*.html`, JSON y `lighthouse-summary.json`. Son mediciones locales con backend deshabilitado, sin señal ni campañas reales; no verifican rendimiento de Vercel, tráfico orgánico ni Core Web Vitals de campo. INP no se ha medido.
+
+No se añadieron dependencias ni migraciones SQL. Las variables nuevas son opcionales para override del canonical y verificación de buscadores. No se ha verificado una propiedad en Search Console ni comprobado que Google u otro proveedor haya indexado el sitio. El cambio real de DNS, HTTPS y redirección al dominio final queda para cuando el propietario lo conecte; las condiciones de esa redirección sí se probaron localmente. La guía operativa está en `SEO.md`.
+
 ## Actualización: edición de imágenes y movimiento — 5 de noviembre de 2026
 
 Cambios sobre la integración existente de Next.js y Supabase. No se añadieron dependencias, variables de entorno ni migraciones. Estas mediciones se realizaron en el checkout local; no verifican un despliegue en Vercel.

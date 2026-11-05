@@ -1,10 +1,9 @@
 import 'server-only';
 import { createHmac } from 'node:crypto';
 import { privilegedClient } from './supabase/server';
+import { validFormOrigin } from './site-config';
 export function validOrigin(request: Request) {
-  const origin=request.headers.get('origin');
-  const expected=process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
-  return !!origin && origin === new URL(expected).origin;
+  return validFormOrigin(request.headers.get('origin'), request.url);
 }
 export async function rateLimit(request: Request, scope: string, max = 5, seconds = 900) {
   const salt=process.env.RATE_LIMIT_SALT;

@@ -11,12 +11,21 @@ test('Páginas públicas: SSR, SEO, móvil, accesibilidad y estado sin conexione
     for(const route of ['/','/servicios','/en-vivo','/contacto']){
       const response=await fetch(preview.url+route);assert.equal(response.status,200);
       const html=await response.text();assert.match(html,/<html[^>]+lang="es-CO"/);assert.match(html,/rel="canonical"/);assert.match(html,/property="og:image"/);assert.equal((html.match(/<h1[ >]/g)||[]).length,1);
+      assert.ok(response.headers.get('link')?.includes('/llms.txt'));
+      const canonical=html.match(/<link rel="canonical" href="([^"]+)"/)?.[1];assert.ok(canonical);assert.equal(new URL(canonical).href,new URL(route,'https://sumercetv.vercel.app').href);
+      const schemas=[...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)].flatMap(match=>JSON.parse(match[1])['@graph']??[]);
+      assert.equal(schemas.filter(s=>s['@type']==='Organization').length,1);assert.equal(schemas.filter(s=>s['@type']==='WebSite').length,1);
+      assert.equal(schemas.filter(s=>['WebPage','CollectionPage','ContactPage'].includes(s['@type'])).length,1);
+      assert.equal(schemas.filter(s=>s['@type']==='BreadcrumbList').length,route==='/'?0:1);
+      assert.ok(schemas.every(s=>s['@id']?.startsWith('https://sumercetv.vercel.app/')));
     }
     const admin=await fetch(preview.url+'/admin',{redirect:'manual'});assert.ok([307,308].includes(admin.status));assert.match(admin.headers.get('location')||'',/\/admin\/login/);
     const media=await fetch(preview.url+'/api/media',{redirect:'manual'});assert.ok([307,308].includes(media.status));assert.match(media.headers.get('location')||'',/\/admin\/login/);
     const mediaCsrf=await fetch(preview.url+'/api/media',{method:'POST',headers:{origin:'https://invalid.example'}});assert.equal(mediaCsrf.status,403);
     const robots=await(await fetch(preview.url+'/robots.txt')).text();assert.match(robots,/Disallow: \/admin/);
     const sitemap=await(await fetch(preview.url+'/sitemap.xml')).text();assert.doesNotMatch(sitemap,/\/admin/);assert.equal((sitemap.match(/<url>/g)||[]).length,4);
+    assert.doesNotMatch(sitemap,/https:\/\/sumercetv\.com/);assert.match(robots,/Sitemap: https:\/\/sumercetv\.vercel\.app\/sitemap.xml/);
+    for(const route of ['/llms.txt','/llms-full.txt']){const response=await fetch(preview.url+route);assert.equal(response.status,200);assert.match(response.headers.get('content-type')||'',/text\/plain/);assert.match(response.headers.get('x-robots-tag')||'',/noindex/);const text=await response.text();assert.match(text,/^# SUMERCÉ TV/);assert.match(text,/https:\/\/sumercetv\.vercel\.app/);assert.doesNotMatch(text,/\/admin|\/api\//);}
     const csrf=await fetch(preview.url+'/api/leads',{method:'POST',headers:{origin:'https://invalid.example','Content-Type':'application/json'},body:'{}'});assert.equal(csrf.status,403);
     const executablePath=await chromePath();assert.ok(executablePath,'No hay Chrome/Edge instalado para verificar el navegador.');
     browser=await chromium.launch({executablePath,headless:true});
@@ -46,7 +55,7 @@ test('Páginas públicas: SSR, SEO, móvil, accesibilidad y estado sin conexione
     assert.equal(await motionPage.locator('.route-entry').evaluate(el=>getComputedStyle(el).animationName),'none');
     await motionPage.getByRole('navigation',{name:'Principal',exact:true}).getByRole('link',{name:'Contacto',exact:true}).click();await motionPage.waitForURL('**/contacto');
     assert.equal(await motionPage.getByRole('navigation',{name:'Principal',exact:true}).getByRole('link',{name:'Contacto',exact:true}).getAttribute('aria-current'),'page');await reduced.close();
-    const nojs=await browser.newContext({javaScriptEnabled:false});const page=await nojs.newPage();await page.goto(preview.url);assert.ok((await page.locator('main').innerText()).includes('Una señal que nos conecta.'));await nojs.close();
+    const nojs=await browser.newContext({javaScriptEnabled:false});const page=await nojs.newPage();for(const route of ['/','/servicios','/en-vivo','/contacto']){await page.goto(preview.url+route);assert.equal(await page.locator('h1').count(),1);assert.ok((await page.locator('main').innerText()).length>100);assert.ok(await page.getByRole('navigation',{name:'Principal',exact:true}).getByRole('link',{name:'Servicios',exact:true}).getAttribute('href'));}await nojs.close();
     await writeFile('test-results/browser-summary.json',JSON.stringify(results,null,2));
   }finally{await browser?.close();preview.stop();}
 });
