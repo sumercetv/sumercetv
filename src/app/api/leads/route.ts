@@ -20,7 +20,9 @@ export async function POST(request: Request) {
     if(!await rateLimit(request,'leads',5,900))return reply('Se alcanzó el límite temporal de solicitudes. Intenta más tarde.',429);
     if(lead.service_id){const {data}=await publicClient().from('services').select('id').eq('id',lead.service_id).maybeSingle();if(!data)return reply('El servicio seleccionado ya no está disponible.',400);}
     if(lead.plan_id){const {data}=await publicClient().from('plans').select('id').eq('id',lead.plan_id).maybeSingle();if(!data)return reply('El plan seleccionado ya no está disponible.',400);}
-    const {error}=await privilegedClient().from('leads').insert(lead);
+    let {error}=await privilegedClient().from('leads').insert(lead);
+    // Compatibilidad: si la migración de `source` aún no se aplicó, la solicitud se guarda sin origen.
+    if(error&&(error.code==='PGRST204'||error.code==='42703')){const {source:_source,...legacy}=lead;void _source;({error}=await privilegedClient().from('leads').insert(legacy));}
     if(error)return reply('No pudimos guardar tu solicitud. Intenta más tarde.',503);
     return reply('Recibimos tu solicitud. El equipo comercial podrá consultarla de forma privada.',201);
   }catch{return reply('El formulario no está disponible en este momento. Intenta más tarde.',503);}

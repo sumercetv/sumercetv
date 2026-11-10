@@ -14,6 +14,14 @@ test('Formularios requieren consentimiento, correo válido y honeypot vacío',()
   assert.equal(leadSchema.safeParse(input).success,true);
   for(const patch of [{consent:false},{email:'bad'},{website:'spam'},{message:'breve'}])assert.equal(leadSchema.safeParse({...input,...patch}).success,false);
 });
+test('Solicitud rápida registra origen y las secciones solo aceptan imágenes de la biblioteca',()=>{
+  const lead={name:'Cliente',email:'cliente@example.com',message:'Solicitud rápida enviada desde inicio. Interés indicado: información general.',consent:true,website:'',started:Date.now(),source:'inicio · utm:facebook/cpc'};
+  const parsed=leadSchema.safeParse(lead);assert.equal(parsed.success,true);assert.equal(parsed.success&&parsed.data.source,'inicio · utm:facebook/cpc');
+  assert.equal(leadSchema.safeParse({...lead,source:'x'.repeat(201)}).success,false);
+  const section={key:'hero',title:'Título',body:'',items:'Uno\nDos',button_label:'',button_url:'/contacto',image_url:'',image_alt:'',published:true,sort_order:0};
+  const ok=schemas.sections.safeParse(section);assert.equal(ok.success,true);assert.equal(ok.success&&ok.data.image_url,null);
+  assert.equal(schemas.sections.safeParse({...section,image_url:'https://evil.example/foto.jpg'}).success,false);
+});
 test('La configuración de señal no permite fingir una fuente habilitada',()=>{
   const input={title:'Señal',source_type:'hls',source_url:'',poster_url:'',enabled:false,published:true};
   assert.equal(schemas.stream_config.safeParse(input).success,true);

@@ -19,6 +19,7 @@ test('Migración: RLS, roles, privacidad, vigencia y limitación atómica',async
     grant select,insert,update,delete on storage.objects to authenticated;
   `);
   await db.exec(await readFile('supabase/migrations/202610280001_initial.sql','utf8'));
+  await db.exec(await readFile('supabase/migrations/202611100001_section_images_lead_source.sql','utf8'));
   const admin='10000000-0000-4000-8000-000000000001',user='10000000-0000-4000-8000-000000000002';
   await db.query('insert into auth.users values ($1),($2)',[admin,user]);
   await db.query("insert into public.profiles(id,role) values($1,'admin')",[admin]);

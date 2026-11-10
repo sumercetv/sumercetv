@@ -49,3 +49,115 @@
 .image-field .text-link{font-size:.8rem}
 @media(max-width:700px){.image-editor{padding:20px;width:calc(100% - 20px);max-height:calc(100dvh - 20px)}.editor-layout{grid-template-columns:1fr;gap:20px}.editor-preview{position:static;min-height:160px}.editor-preview canvas{max-height:240px}.editor-heading h2{font-size:1.5rem}.editor-heading .button{padding:8px 12px;min-height:44px}.editor-controls .form-row{grid-template-columns:1fr 1fr}.editor-footer .button{flex:1}.skeleton-grid{grid-template-columns:1fr}.skeleton-card:not(:first-child){display:none}}
 @media(prefers-reduced-motion:reduce){.route-entry,.spinner,.skeleton,.image-editor[open],.mobile-menu[open] nav{animation:none}.service-card:hover,.plan-card:hover,.sponsor-logo:hover,.button:hover,.text-link:hover svg{transform:none}}
+
+/* ───── Vida de página: entradas, scroll, hero, ticker y captación ─────
+   Solo tokens de marca. La regla global de prefers-reduced-motion (globals.css) anula todo esto. */
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@keyframes rise-solid{from{transform:translateY(22px)}to{transform:none}}
+@keyframes reveal-up{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+@keyframes reveal-left{from{opacity:0;transform:translateX(-34px)}to{opacity:1;transform:none}}
+@keyframes reveal-right{from{opacity:0;transform:translateX(34px)}to{opacity:1;transform:none}}
+@keyframes reveal-zoom{from{opacity:0;transform:scale(.93)}to{opacity:1;transform:none}}
+@keyframes screen-in{from{transform:translateY(34px) rotate(2deg)}to{transform:none}}
+@keyframes screen-float{0%,100%{transform:rotate(-3deg) translateY(0)}50%{transform:rotate(-1.8deg) translateY(-9px)}}
+@keyframes sticker-wiggle{0%,100%{transform:rotate(3deg)}50%{transform:rotate(-2deg) translateY(-4px)}}
+@keyframes ring-pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.08);opacity:.45}}
+@keyframes signal-pulse{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes ticker{to{transform:translateX(-50%)}}
+@keyframes cta-ring{0%{box-shadow:0 0 0 0 color-mix(in srgb,var(--brand-yellow) 70%,transparent)}70%,100%{box-shadow:0 0 0 16px transparent}}
+@keyframes float-ring{0%{box-shadow:0 10px 26px color-mix(in srgb,var(--brand-blue) 30%,transparent),0 0 0 0 color-mix(in srgb,var(--brand-blue) 45%,transparent)}70%,100%{box-shadow:0 10px 26px color-mix(in srgb,var(--brand-blue) 30%,transparent),0 0 0 14px transparent}}
+@keyframes float-in{from{opacity:0;transform:translateY(24px) scale(.9)}to{opacity:1;transform:none}}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes drift{to{transform:rotate(360deg)}}
+main{overflow-x:clip}
+
+/* Scroll reveal (scroll-motion.tsx). `backwards` devuelve el control al hover al terminar. */
+.reveal-pending{opacity:0}
+.reveal-pending[data-reveal=stagger]{opacity:1}
+.reveal-pending[data-reveal=stagger]>*{opacity:0}
+.reveal-in{animation:reveal-up .7s cubic-bezier(.2,.7,.2,1) backwards}
+.reveal-in[data-reveal=left]{animation-name:reveal-left}
+.reveal-in[data-reveal=right]{animation-name:reveal-right}
+.reveal-in[data-reveal=zoom]{animation-name:reveal-zoom}
+.reveal-in[data-reveal=stagger]{animation:none}
+.reveal-in[data-reveal=stagger]>*{animation:reveal-up .6s cubic-bezier(.2,.7,.2,1) backwards}
+.reveal-in[data-reveal=stagger]>:nth-child(2){animation-delay:.09s}
+.reveal-in[data-reveal=stagger]>:nth-child(3){animation-delay:.18s}
+.reveal-in[data-reveal=stagger]>:nth-child(4){animation-delay:.27s}
+.reveal-in[data-reveal=stagger]>:nth-child(5){animation-delay:.36s}
+.reveal-in[data-reveal=stagger]>:nth-child(n+6){animation-delay:.45s}
+
+/* Hero: el H1 y la imagen entran sin opacidad para no retrasar el LCP. */
+.hero{padding-bottom:0}
+.hero-copy>*{animation:rise .7s cubic-bezier(.2,.7,.2,1) backwards}
+.hero-copy>h1{animation-name:rise-solid}
+.hero-copy>:nth-child(2){animation-delay:.06s}
+.hero-copy>:nth-child(3){animation-delay:.14s}
+.hero-copy>:nth-child(4){animation-delay:.22s}
+.hero-copy>:nth-child(5){animation-delay:.3s}
+.hero-copy>:nth-child(n+6){animation-delay:.38s}
+.hero-screen{animation:screen-in .9s cubic-bezier(.2,.7,.2,1) backwards}
+.screen-frame{animation:screen-float 7s ease-in-out infinite}
+.screen-sticker{animation:sticker-wiggle 5s ease-in-out infinite}
+.screen-content:before{animation:ring-pulse 5s ease-in-out infinite}
+.screen-content:after{animation:ring-pulse 5s ease-in-out 1.2s infinite}
+.hero-note svg,.screen-footer svg{animation:signal-pulse 2.4s ease-in-out infinite}
+.hero .actions .button-yellow{animation:cta-ring 2.8s ease-out 1.4s infinite}
+.hero-points{list-style:none;padding:0;margin:0 0 1.5rem;display:flex;flex-wrap:wrap;gap:8px 10px}
+.hero-points li{display:inline-flex;align-items:center;gap:7px;font-size:.82rem;font-weight:700;padding:6px 12px;border:1px solid var(--line);border-radius:30px;background:var(--wash)}
+.screen-photo{padding:0}
+.screen-photo:before,.screen-photo:after{display:none}
+.screen-photo img,.section-photo img,.preview-photo{object-fit:cover}
+
+/* Ticker de señal */
+.ticker{overflow:hidden;border-block:1px solid var(--line);margin-top:60px;padding:15px 0;font-size:.72rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:var(--wash)}
+.ticker-track{display:flex;width:max-content;animation:ticker 36s linear infinite}
+.ticker-group{display:flex;flex:none}
+.ticker-group span{display:inline-flex;align-items:center;gap:22px;padding-right:22px;white-space:nowrap}
+.ticker-group span:after{content:'';width:9px;height:9px;border-radius:50%;background:var(--brand-yellow);border:1px solid var(--brand-blue)}
+@media(hover:hover){.ticker:hover .ticker-track{animation-play-state:paused}}
+
+/* Imágenes de sección */
+.section-photo{position:relative;aspect-ratio:16/10;border-radius:14px;overflow:hidden;border:1px solid var(--line);margin-bottom:28px;box-shadow:12px 14px 0 var(--brand-yellow)}
+.preview-screen.has-photo:after{content:'';position:absolute;inset:0;background:color-mix(in srgb,var(--brand-blue) 42%,transparent);pointer-events:none}
+.preview-screen.has-photo .button{z-index:1}
+.card-image img{transition:transform .5s ease}
+
+/* Botones y microinteracciones */
+.button-yellow,.button-blue{position:relative;overflow:hidden}
+.button-yellow:before,.button-blue:before{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,color-mix(in srgb,var(--brand-white) 55%,transparent) 50%,transparent 65%);transform:translateX(-120%);pointer-events:none}
+.button svg{transition:transform .18s ease}
+.benefit-list li{transition:padding-left .25s ease,background .25s ease}
+.field input,.field textarea,.field select{transition:border-color .18s ease,box-shadow .18s ease}
+.field input:focus,.field textarea:focus,.field select:focus{border-color:var(--brand-blue);box-shadow:0 0 0 4px color-mix(in srgb,var(--brand-yellow) 55%,transparent)}
+@media(hover:hover){
+  .button-yellow:hover:before,.button-blue:hover:before{transform:translateX(120%);transition:transform .6s ease}
+  .button:hover svg:last-child{transform:translateX(3px)}
+  .service-card:hover .card-image img{transform:scale(1.06)}
+  .service-card:hover,.plan-card:hover{box-shadow:8px 10px 0 var(--brand-yellow)}
+  .benefit-list li:hover{padding-left:12px;background:var(--wash)}
+}
+.service-card,.plan-card,.sponsor-logo{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease}
+.cta-band{position:relative;overflow:hidden}
+.cta-band>*{position:relative}
+.cta-band:before{content:'';position:absolute;width:420px;height:420px;right:-140px;top:-190px;border:46px dashed color-mix(in srgb,var(--brand-blue) 9%,transparent);border-radius:50%;animation:drift 60s linear infinite;pointer-events:none}
+
+/* Captación: bloque de solicitud rápida, éxito y acceso flotante */
+.lead-section{background:var(--wash);border-top:1px solid var(--line)}
+.lead-block{display:grid;grid-template-columns:.9fr 1.1fr;gap:70px;align-items:center}
+.lead-block>div>p{font-size:1.08rem}
+.form-panel-pop{box-shadow:14px 16px 0 var(--brand-yellow)}
+.form-success{text-align:center}
+.form-success .actions{justify-content:center}
+.form-success .button{width:auto}
+.success-mark{margin-bottom:18px;stroke:var(--brand-blue);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.success-mark circle{fill:var(--brand-yellow);stroke-dasharray:183;stroke-dashoffset:183;animation:draw .6s ease-out forwards}
+.success-mark path{stroke-dasharray:40;stroke-dashoffset:40;animation:draw .35s ease-out .5s forwards}
+.float-cta{position:fixed;right:20px;bottom:20px;z-index:30;display:inline-flex;align-items:center;gap:10px;padding:13px 20px;min-height:52px;border-radius:40px;background:var(--brand-blue);color:var(--brand-white);font-size:.85rem;font-weight:700;box-shadow:0 10px 26px color-mix(in srgb,var(--brand-blue) 30%,transparent);animation:float-in .5s ease-out 1s backwards,float-ring 3.2s ease-out 2.4s infinite;transition:transform .18s ease}
+.float-cta:focus-visible{outline-color:var(--brand-yellow);outline-offset:3px}
+@media(hover:hover){.float-cta:hover{transform:translateY(-3px)}}
+.site-footer{padding-bottom:64px}
+@media(max-width:1000px){.lead-block{gap:40px}}
+@media(max-width:700px){.ticker{margin-top:36px;font-size:.62rem;padding:12px 0}.lead-block{grid-template-columns:1fr;gap:30px}.form-panel-pop,.section-photo{box-shadow:8px 10px 0 var(--brand-yellow)}.float-cta{right:14px;bottom:14px;padding:11px 16px;min-height:48px;font-size:.78rem}.hero-points li{font-size:.76rem}}
+/* Sin animación, el trazo del éxito debe verse completo. */
+@media(prefers-reduced-motion:reduce){.success-mark circle,.success-mark path{stroke-dashoffset:0}.reveal-pending,.reveal-pending[data-reveal=stagger]>*{opacity:1}}
