@@ -8,12 +8,12 @@ export const SITE = {
   region: 'Boyacá',
   country: 'CO',
 
-  // Responsable del tratamiento de datos (Ley 1581 de 2012). PENDIENTE: completar con datos reales.
+  // Responsable del tratamiento de datos (Ley 1581 de 2012). NIT, dirección y teléfono: agregarlos cuando existan.
   responsible: {
-    legalName: '', // Razón social exacta, p. ej. "Nombre S.A.S."
+    legalName: 'Sumerce TV', // Razón social exacta, p. ej. "Nombre S.A.S."
     nit: '', // NIT con dígito de verificación
     address: '', // Dirección física de notificaciones
-    email: '', // Correo para consultas y reclamos de datos personales
+    email: 'sumercetv@gmail.com', // Correo para consultas y reclamos de datos personales
     phone: '', // Teléfono de atención de datos personales
   },
 
