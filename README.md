@@ -44,6 +44,12 @@ En `/admin` hay gestión de secciones de inicio (incluida su lista de beneficios
 
 Aprueba la presentación institucional y reemplaza los textos provisionales de inicio. No publiques contactos, servicios, precios ni marcas sin confirmación. Publica un aviso de tratamiento de datos válido que identifique al responsable, finalidad, derechos y canal de atención, y activa su casilla de aprobación para habilitar el formulario. El sistema no sustituye la revisión del aviso por el responsable.
 
+### Política de datos (/privacidad) y cambios manuales de base de datos
+
+- La página pública `/privacidad` se arma con los datos del responsable en `src/config/site.ts` (razón social, NIT, dirección, correo y teléfono de datos personales) y con los canales comerciales de /admin. Un dato vacío no se muestra; la página solo se indexa y entra al sitemap cuando los cinco datos del responsable están completos.
+- Cada vez que cambie el texto de la política, sube `SITE.privacy.version` y `SITE.privacy.effectiveDate`. Cada lead guarda `consent_at` (hora del servidor) y `privacy_version`.
+- Los cambios de esquema posteriores a las migraciones iniciales se entregan en `supabase/manual/AAAA-MM-DD_descripcion.sql` para cargarlos a mano en el SQL Editor, en orden de fecha. El código es compatible hacia atrás: si un archivo aún no se ejecutó, el formulario sigue guardando leads sin las columnas nuevas.
+
 ## Imágenes y logo
 
 El original `sumerce_tv_logoeditable.png` se conserva intacto. `public/brand/` contiene el recorte transparente, PNG/WebP optimizados, imagen social y Apple icon; `public/favicon.ico` contiene el favicon. `provenance.json` registra el hash y procedimiento. Se evaluó la extracción con image_gen, pero se descartó porque modificaba el relieve. El resultado final usa una máscara del fondo exterior conectado a los bordes sobre los píxeles originales: conserva los blancos internos y no redibuja el arte. El build regenera estos recursos mediante `scripts/extract-original-logo.mjs` y `scripts/prepare-brand.mjs`. Para regenerar solo tamaños desde el recorte existente: `npm run assets`.

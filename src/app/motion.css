@@ -161,3 +161,11 @@ main{overflow-x:clip}
 @media(max-width:700px){.ticker{margin-top:36px;font-size:.62rem;padding:12px 0}.lead-block{grid-template-columns:1fr;gap:30px}.form-panel-pop,.section-photo{box-shadow:8px 10px 0 var(--brand-yellow)}.float-cta{right:14px;bottom:14px;padding:11px 16px;min-height:48px;font-size:.78rem}.hero-points li{font-size:.76rem}}
 /* Sin animación, el trazo del éxito debe verse completo. */
 @media(prefers-reduced-motion:reduce){.success-mark circle,.success-mark path{stroke-dashoffset:0}.reveal-pending,.reveal-pending[data-reveal=stagger]>*{opacity:1}}
+/* Índice interno de portada: enlaces estáticos (antes marquesina) con ancla y scroll suave. */
+.page-index ul{list-style:none;margin:0;padding:0 18px;display:flex;justify-content:center;flex-wrap:wrap;gap:4px 22px}
+.page-index li{display:inline-flex;align-items:center;gap:22px}
+.page-index li:not(:last-child):after{content:'';width:9px;height:9px;border-radius:50%;background:var(--brand-yellow);border:1px solid var(--brand-blue)}
+.page-index a{display:inline-block;padding:8px 0;white-space:nowrap;border-bottom:2px solid transparent}
+.page-index a:hover,.page-index a:focus-visible{border-bottom-color:var(--brand-yellow)}
+a.screen-sticker:hover{text-decoration:underline;text-underline-offset:3px}
+@media(max-width:700px){.page-index ul{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;scrollbar-width:none}.page-index{scroll-snap-type:x proximity}}

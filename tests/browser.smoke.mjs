@@ -45,7 +45,8 @@ test('Páginas públicas: SSR, SEO, móvil, accesibilidad y estado sin conexione
         results.push({route,viewport,violations:axe.violations});
         assert.deepEqual(axe.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>n.target)})),[],`Accesibilidad: ${route}`);
         if(route==='/en-vivo'){assert.equal(await page.locator('video,iframe').count(),0);assert.equal(await page.getByText('EN VIVO',{exact:true}).count(),0);}
-        if(route==='/contacto')assert.equal(await page.getByRole('button',{name:'Enviar solicitud'}).isDisabled(),true);
+        if(route==='/contacto')assert.equal(await page.getByRole('button',{name:'Enviar solicitud'}).count(),0,'Sin backend no se muestra un formulario inutilizable');
+if(['/','/servicios','/en-vivo','/contacto'].includes(route)){const text=await page.locator('main').innerText();for(const bad of ['Cargando contenido','pendiente','provisional','Dejar vacío'])assert.equal(text.includes(bad),false,route+': '+bad);}
         await page.screenshot({path:`test-results/${route==='/'?'inicio':route.slice(1).replaceAll('/','-')}-${viewport.width}.png`,fullPage:true});
         if(viewport.width===390&&route!=='/admin/login'){await page.getByText('Menú',{exact:false}).click();await page.getByRole('navigation',{name:'Navegación móvil'}).getByRole('link',{name:'Servicios',exact:true}).click();await page.waitForURL('**/servicios');}
       }
