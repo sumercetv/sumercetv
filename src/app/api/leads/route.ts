@@ -3,6 +3,7 @@ import { leadSchema } from '@/lib/validation';
 import { privilegedClient, publicClient, configured } from '@/lib/supabase/server';
 import { rateLimit, validOrigin } from '@/lib/abuse';
 import { limitedBody } from '@/lib/request-body';
+import { SITE } from '@/config/site';
 export async function POST(request: Request) {
   const reply=(message:string,status:number)=>NextResponse.json({message},{status,headers:{'Cache-Control':'no-store'}});
   if(!validOrigin(request))return reply('Solicitud no permitida.',403);
@@ -20,9 +21,19 @@ export async function POST(request: Request) {
     if(!await rateLimit(request,'leads',5,900))return reply('Se alcanzó el límite temporal de solicitudes. Intenta más tarde.',429);
     if(lead.service_id){const {data}=await publicClient().from('services').select('id').eq('id',lead.service_id).maybeSingle();if(!data)return reply('El servicio seleccionado ya no está disponible.',400);}
     if(lead.plan_id){const {data}=await publicClient().from('plans').select('id').eq('id',lead.plan_id).maybeSingle();if(!data)return reply('El plan seleccionado ya no está disponible.',400);}
-    let {error}=await privilegedClient().from('leads').insert(lead);
-    // Compatibilidad: si la migración de `source` aún no se aplicó, la solicitud se guarda sin origen.
-    if(error&&(error.code==='PGRST204'||error.code==='42703')){const {source:_source,...legacy}=lead;void _source;({error}=await privilegedClient().from('leads').insert(legacy));}
+    // Trazabilidad del consentimiento: hora del servidor y versión vigente de /privacidad.
+    const record:Record<string,unknown>={...lead,consent_at:new Date().toISOString(),privacy_version:SITE.privacy.version,consent_version:SITE.privacy.version};
+    // Compatibilidad hacia atrás: si una columna nueva aún no existe en Supabase (SQL manual
+    // pendiente), se reintenta sin ella. Nunca se pierde la solicitud por una columna faltante.
+    const optional=['consent_at','privacy_version','source'];
+    let {error}=await privilegedClient().from('leads').insert(record);
+    while(error&&(error.code==='PGRST204'||error.code==='42703')){
+      const remaining=optional.filter(c=>c in record);
+      if(!remaining.length)break;
+      const named=remaining.filter(c=>error!.message.includes(`'${c}'`)||error!.message.includes(`"${c}"`));
+      for(const column of named.length?named:remaining)delete record[column];
+      ({error}=await privilegedClient().from('leads').insert(record));
+    }
     if(error)return reply('No pudimos guardar tu solicitud. Intenta más tarde.',503);
     return reply('Recibimos tu solicitud. El equipo comercial podrá consultarla de forma privada.',201);
   }catch{return reply('El formulario no está disponible en este momento. Intenta más tarde.',503);}
