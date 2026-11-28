@@ -28,6 +28,8 @@ test('Preview no indexable y mudanza con redirección permanente limitada al hos
   const host = new RegExp(`^${redirects[0].has[0].value}$`);
   assert.equal(host.test('sumercetv.vercel.app'), true);
   for (const alias of ['sumercetv-vercel-app', 'sumercetv.vercel.app.evil.example', 'localhost']) assert.equal(host.test(alias), false);
+  assert.deepEqual(canonicalRedirects({ VERCEL_ENV: 'production', VERCEL_PROJECT_PRODUCTION_URL: 'www.sumercetv.com' }), [{ source: '/:path*', has: [{ type: 'host', value: 'sumercetv\\.vercel\\.app' }], destination: 'https://www.sumercetv.com/:path*', permanent: true }]);
+  assert.deepEqual(canonicalRedirects({ VERCEL_ENV: 'production', VERCEL_PROJECT_PRODUCTION_URL: 'sumercetv.vercel.app' }), []);
 });
 
 test('Formularios: origen canónico coherente y previews limitados a los alias confiables del despliegue', () => {
