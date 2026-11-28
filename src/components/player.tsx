@@ -6,6 +6,7 @@ import { Brand } from './brand';
 import { Icon } from './icons';
 import { allowedEmbed, isPublicMedia } from '@/lib/links';
 import type { Stream } from '@/lib/types';
+import { track } from '@/lib/analytics';
 export function Player({ stream, whatsapp = '' }: { stream: Stream; whatsapp?: string }) {
   const [started,setStarted] = useState(false);
   const [status,setStatus] = useState<'idle'|'loading'|'playing'|'paused'|'error'>('idle');
@@ -58,7 +59,7 @@ export function Player({ stream, whatsapp = '' }: { stream: Stream; whatsapp?: s
     void setup().catch(fail);
     return ()=>{ disposed=true;clearTimeout(retry);clearTimeout(watchdog);hls?.destroy();el.removeEventListener('playing',playing);el.removeEventListener('waiting',waiting);el.removeEventListener('stalled',waiting);el.removeEventListener('pause',paused);el.removeEventListener('ended',fail);el.removeEventListener('error',nativeError);el.removeAttribute('src');el.load(); };
   },[started,ready,embed,stream.source_url,attempt]);
-  function start(){setStatus('loading');setStarted(true);}
+  function start(){setStatus('loading');setStarted(true);track('play_en_vivo',{source_type:stream.source_type});}
   // Respaldo cuando la señal no está configurada o no carga: nunca dejar al visitante sin salida.
   const fallback = <div className="player-offline" role={status==='error' ? 'alert' : undefined}><Brand large/><h2>{ready ? 'La señal no está disponible en este momento.' : 'Nos encontramos pronto.'}</h2><p>{ready ? 'Puede ser una pausa en la transmisión. Intenta de nuevo en unos minutos o escríbenos: con gusto te atendemos.' : 'La señal en línea no está disponible en este momento. Escríbenos y con gusto te atendemos.'}</p><div className="actions player-fallback-actions">{ready && status==='error' && <button className="button button-outline" onClick={()=>{setStatus('loading');setAttempt(a=>a+1);}}>Reintentar</button>}{whatsapp && <a className="button button-yellow" href={`https://wa.me/${whatsapp}?text=${encodeURIComponent('Hola SUMERCÉ TV, quiero información sobre la señal y la pauta.')}`} target="_blank" rel="noopener noreferrer"><Icon name="chat" size={18}/>Escríbenos por WhatsApp</a>}<Link className="button button-blue" href="/contacto?servicio=Publicidad">Cotizar un espacio</Link></div></div>;
   const text = !ready ? 'Señal no disponible' : embed ? 'Señal del proveedor' : ({ idle:'Señal lista para consultar', loading:'Conectando con la señal…', playing:'EN VIVO', paused:'Reproducción pausada', error:'No se pudo conectar con la señal' }[status]);

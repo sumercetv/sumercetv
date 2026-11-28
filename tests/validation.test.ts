@@ -9,13 +9,16 @@ test('Enlaces y embeds bloquean protocolos inseguros y proveedores no permitidos
   assert.equal(allowedEmbed('https://www.youtube-nocookie.com.evil.example/embed/x'),false);
   assert.equal(allowedEmbed('https://example.com/embed/x'),false);
 });
-test('Formularios requieren consentimiento, correo válido y honeypot vacío',()=>{
-  const input={name:'Cliente',email:'cliente@example.com',phone:'',interest:'Publicidad',message:'Quiero información sobre anuncios.',consent:true,website:'',started:Date.now()};
-  assert.equal(leadSchema.safeParse(input).success,true);
-  for(const patch of [{consent:false},{email:'bad'},{website:'spam'},{message:'breve'}])assert.equal(leadSchema.safeParse({...input,...patch}).success,false);
+test('Formularios requieren WhatsApp colombiano, consentimiento y honeypot vacío; correo y mensaje opcionales',()=>{
+  const input={name:'Cliente',email:'',phone:'300 123 4567',interest:'Publicidad',message:'',consent:true,website:'',started:Date.now()};
+  const ok=leadSchema.safeParse(input);assert.equal(ok.success,true);assert.equal(ok.success&&ok.data.phone,'+573001234567');
+  for(const phone of ['+57 300 123 4567','573001234567','(300) 123-4567'])assert.equal(leadSchema.safeParse({...input,phone}).data?.phone,'+573001234567',phone);
+  for(const patch of [{consent:false},{email:'bad'},{website:'spam'},{phone:''},{phone:'6011234567'},{phone:'30012345'},{phone:'+1 300 123 4567'}])assert.equal(leadSchema.safeParse({...input,...patch}).success,false,JSON.stringify(patch));
+  const full=leadSchema.safeParse({...input,email:'cliente@example.com',utm_source:'tv',landing_path:'/tv'});assert.equal(full.success&&full.data.utm_source,'tv');
+  assert.equal(leadSchema.safeParse({...input,utm_campaign:'x'.repeat(201)}).success,false);
 });
 test('Solicitud rápida registra origen y las secciones solo aceptan imágenes de la biblioteca',()=>{
-  const lead={name:'Cliente',email:'cliente@example.com',message:'Solicitud rápida enviada desde inicio. Interés indicado: información general.',consent:true,website:'',started:Date.now(),source:'inicio · utm:facebook/cpc'};
+  const lead={name:'Cliente',email:'cliente@example.com',phone:'3001234567',message:'Solicitud rápida enviada desde inicio. Interés indicado: información general.',consent:true,website:'',started:Date.now(),source:'inicio · utm:facebook/cpc'};
   const parsed=leadSchema.safeParse(lead);assert.equal(parsed.success,true);assert.equal(parsed.success&&parsed.data.source,'inicio · utm:facebook/cpc');
   assert.equal(leadSchema.safeParse({...lead,source:'x'.repeat(201)}).success,false);
   const section={key:'hero',title:'Título',body:'',items:'Uno\nDos',button_label:'',button_url:'/contacto',image_url:'',image_alt:'',published:true,sort_order:0};

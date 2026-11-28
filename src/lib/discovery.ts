@@ -1,4 +1,5 @@
 import { defaultPages } from './defaults';
+import { SITE } from '../config/site';
 import { safeExternal } from './links';
 import { publicPages, publicUrl, resolveSiteUrl } from './site-config';
 import type { PageSEO, Plan, Section, Service, Settings } from './types';
@@ -13,7 +14,8 @@ export function publicPageDetails(pages: PageSEO[], id: string): PageSEO {
 
 export function organizationStructuredData(settings: Settings, origin = resolveSiteUrl()) {
   return { '@context': 'https://schema.org', '@graph': [
-    { '@type': 'Organization', '@id': `${origin}/#organization`, name: 'SUMERCÉ TV', url: publicUrl('/', origin), logo: { '@type': 'ImageObject', url: publicUrl('/brand/logo.png', origin), width: 435, height: 220 }, ...(settings.facebook && safeExternal(settings.facebook) ? { sameAs: [settings.facebook] } : {}) },
+    // TelevisionStation es un subtipo de LocalBusiness: SEO local con datos verificados de la config y /admin.
+    { '@type': ['Organization', 'TelevisionStation'], '@id': `${origin}/#organization`, name: 'SUMERCÉ TV', ...(SITE.responsible.legalName ? { legalName: SITE.responsible.legalName } : {}), url: publicUrl('/', origin), logo: { '@type': 'ImageObject', url: publicUrl('/brand/logo.png', origin), width: 435, height: 220 }, image: publicUrl('/brand/social.png', origin), address: { '@type': 'PostalAddress', ...(SITE.responsible.address ? { streetAddress: SITE.responsible.address } : {}), addressLocality: SITE.city, addressRegion: SITE.region, addressCountry: SITE.country }, areaServed: [{ '@type': 'City', name: SITE.city }, { '@type': 'AdministrativeArea', name: SITE.region }], ...((settings.email || SITE.responsible.email) ? { email: settings.email || SITE.responsible.email } : {}), ...(settings.phone ? { telephone: settings.phone } : /^57\d{10}$/.test(settings.whatsapp) ? { telephone: `+${settings.whatsapp}` } : {}), ...(settings.facebook && safeExternal(settings.facebook) ? { sameAs: [settings.facebook] } : {}) },
     { '@type': 'WebSite', '@id': `${origin}/#website`, name: 'SUMERCÉ TV', url: publicUrl('/', origin), inLanguage: 'es-CO', publisher: { '@id': `${origin}/#organization` } },
   ] as const };
 }
