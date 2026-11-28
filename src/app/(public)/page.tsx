@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { getContent } from '@/lib/content';
@@ -12,6 +13,7 @@ import { ContactForm } from '@/components/contact-form';
 import { ScrollMotion } from '@/components/scroll-motion';
 import { HeroVideo } from '@/components/hero-video';
 import { SITE } from '@/config/site';
+import { FoundersBlock, FOUNDER_INTEREST } from '@/components/founders';
 import { isPublicMedia, safeLink } from '@/lib/validation';
 import type { Section } from '@/lib/types';
 export const revalidate = 300;
@@ -49,6 +51,6 @@ export default async function Home() {
     if(s.key==='benefits') return <section className="section" id="espacios" key={s.id}><div className="container split"><div data-reveal="left"><span className="eyebrow">Hablemos de tu marca</span><h2>{s.title}</h2><p>{s.body}</p><SectionButton section={s} primary/></div><div>{image ? <div className="section-photo" data-reveal="zoom"><Image src={image.src} alt={image.alt} fill sizes="(max-width: 700px) 100vw, 50vw"/></div> : <span className="intro-mark" data-reveal="zoom">TV<span>↗</span></span>}<ul className="benefit-list" data-reveal="stagger">{s.items.map((item,i)=><li key={i}><b>{String(i+1).padStart(2,'0')}</b>{item}</li>)}</ul></div></div></section>;
     // Prueba social: la sección aparece sola cuando hay patrocinadores publicados y autorizados en /admin.
     if(s.key==='sponsors') return sponsors.length ? <section className="section section-wash" key={s.id}><div className="container"><div className="section-head" data-reveal><div><span className="eyebrow">Conexiones que suman</span><h2>{s.title}</h2></div></div><div data-reveal><SponsorGrid sponsors={sponsors}/></div></div></section> : null;
-    return <section className="section lead-section" id="cotizar" key={s.id}><div className="container lead-block"><div data-reveal="left"><span className="eyebrow">Próxima conexión: tu idea</span><h2>{s.title}</h2><p>{s.body}</p>{whatsapp && <p><a className="button button-blue" href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer"><Icon name="chat" size={18}/>Hablar por WhatsApp</a></p>}<SectionButton section={s}/></div><div data-reveal="right"><ContactForm compact source="inicio" title="Recibe una propuesta." options={options} enabled={leadsEnabled(settings)} whatsapp={whatsapp} facebook={settings.facebook}/></div></div></section>;
-  })}<ScrollMotion/></>;
+    return <Fragment key={s.id}><FoundersBlock settings={settings} whatsapp={whatsapp} formHref="#cotizar"/><section className="section lead-section" id="cotizar"><div className="container lead-block"><div data-reveal="left"><span className="eyebrow">Próxima conexión: tu idea</span><h2>{s.title}</h2><p>{s.body}</p>{whatsapp && <p><a className="button button-blue" href={`https://wa.me/${whatsapp}`} target="_blank" rel="noopener noreferrer"><Icon name="chat" size={18}/>Hablar por WhatsApp</a></p>}<SectionButton section={s}/></div><div data-reveal="right"><ContactForm compact source="inicio" title="Recibe una propuesta." options={options} enabled={leadsEnabled(settings)} whatsapp={whatsapp} facebook={settings.facebook}/></div></div></section></Fragment>;
+  })}{!sections.some(s=>s.key==='contact')&&<FoundersBlock settings={settings} whatsapp={whatsapp} formHref={`/contacto?plan=${encodeURIComponent(FOUNDER_INTEREST)}`}/>}<ScrollMotion/></>;
 }

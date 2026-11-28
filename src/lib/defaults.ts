@@ -1,5 +1,5 @@
 import type { PageSEO, Section, Settings, Stream } from './types';
-export const defaultSettings: Settings = { facebook: 'https://www.facebook.com/p/Sumerc%C3%A9-TV-61590675422295/', email: '', phone: '', whatsapp: '', institutional: '', institutional_ready: false, privacy: '', privacy_ready: false };
+export const defaultSettings: Settings = { facebook: 'https://www.facebook.com/p/Sumerc%C3%A9-TV-61590675422295/', email: '', phone: '', whatsapp: '', institutional: '', institutional_ready: false, privacy: '', privacy_ready: false, founders_enabled: true, founders_total: 3, founders_taken: 0, founders_benefit: 'Tarifa congelada 12 meses' };
 export const defaultPages: PageSEO[] = [
   { id: 'inicio', title: 'SUMERCÉ TV | Televisión en línea y contacto comercial', description: 'Conoce SUMERCÉ TV, consulta la disponibilidad de su señal de televisión en línea y contacta al equipo para información comercial.' },
   { id: 'servicios', title: 'Servicios y planes | SUMERCÉ TV', description: 'Consulta los servicios y planes publicados de SUMERCÉ TV y solicita una propuesta para tu marca.' },
