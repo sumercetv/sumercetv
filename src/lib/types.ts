@@ -1,6 +1,7 @@
 export type Settings = {
   facebook: string; email: string; phone: string; whatsapp: string;
   institutional: string; institutional_ready: boolean; privacy: string; privacy_ready: boolean;
+  founders_enabled: boolean; founders_total: number; founders_taken: number; founders_benefit: string;
 };
 export type PageSEO = { id: string; title: string; description: string; heading?:string; introduction?:string };
 export type Section = { id: string; key: string; title: string; body: string; button_label: string; button_url: string; items:string[]; image_url?: string | null; image_alt?: string; sort_order: number; published: boolean };

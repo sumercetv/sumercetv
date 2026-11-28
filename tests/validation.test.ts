@@ -40,3 +40,18 @@ test('Contraste AA de las combinaciones de texto de marca',()=>{
   const luminance=(hex:string)=>{const a=hex.match(/\w\w/g)!.map(h=>parseInt(h,16)/255).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4);return .2126*a[0]+.7152*a[1]+.0722*a[2];};
   const blue=luminance('0645B5');for(const bg of ['F7F9FC','F9C526']){const ratio=(luminance(bg)+.05)/(blue+.05);assert.ok(ratio>=4.5);console.log(`Contraste #0645B5 / #${bg}: ${ratio.toFixed(2)}:1`);}
 });
+
+test('Patrocinadores Fundadores: cupos coherentes y bloque oculto sin cupos', async () => {
+  const { settingsSchema } = await import('../src/lib/validation');
+  const { defaultSettings } = await import('../src/lib/defaults');
+  const { foundersLeft } = await import('../src/components/founders');
+  const base = { ...defaultSettings, institutional: 'Canal regional.', privacy: 'Aviso.', founders_total: '3', founders_taken: '1' };
+  const ok = settingsSchema.safeParse(base);
+  assert.ok(ok.success);
+  assert.equal(ok.success && ok.data.founders_total, 3);
+  assert.equal(settingsSchema.safeParse({ ...base, founders_taken: '4' }).success, false);
+  assert.equal(foundersLeft({ ...defaultSettings, founders_total: 3, founders_taken: 1 }), 2);
+  assert.equal(foundersLeft({ ...defaultSettings, founders_total: 3, founders_taken: 3 }), 0);
+  assert.equal(foundersLeft({ ...defaultSettings, founders_enabled: false }), 0);
+  assert.equal(foundersLeft({ ...defaultSettings, founders_benefit: ' ' }), 0);
+});

@@ -59,6 +59,8 @@ Aprueba la presentación institucional y reemplaza los textos provisionales de i
 - **Notificaciones** (opcionales, después de guardar): `LEADS_WEBHOOK_URL` (POST JSON para GoHighLevel/n8n) y `RESEND_API_KEY` + `LEADS_NOTIFY_EMAIL` (+ `LEADS_FROM_EMAIL` con dominio verificado). Un fallo solo queda en los logs de Vercel, sin datos personales.
 - **Hero**: CTA "Cotizar pauta" y "Ver en vivo". Video en loop opcional en `SITE.hero.videoUrl` (MP4/WebM HTTPS, sin audio); se carga después de la página y nunca con "reducir movimiento" ni ahorro de datos.
 - **/servicios**: los planes cuyo nombre empieza por "Plan" se destacan arriba; los que empiezan por "Pauta" se agrupan como pauta con sus salidas diarias; los servicios van en acordeón por categoría. "Desde $X" aparece solo si el plan tiene precio en /admin.
+- **Patrocinadores Fundadores** (inicio, antes del formulario, y /servicios): se configura en /admin → Ajustes generales (mostrar, cupos totales, cupos tomados y beneficio). Muestra "Quedan X cupos"; se oculta solo si está desactivado, sin beneficio o sin cupos. "Quiero mi cupo" lleva al formulario con el interés "Patrocinador Fundador". No requiere SQL (vive en el JSON de `site_settings`).
+- **Calculadora de pauta** (/servicios → #calculadora): horario (planes "Pauta …"), salidas diarias (leídas de las características "N salidas diarias…") y permanencia de 3, 6 o 12 meses. No muestra tarifas inventadas: solo "Desde $X" si el plan tiene precio. Captura el lead en línea con `source` "calculadora"; la selección viaja en el interés (horario) y en el mensaje.
 
 ## Imágenes y logo
 
