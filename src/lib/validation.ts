@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { safeExternal,safeLink,allowedEmbed,isPublicMedia } from './links';
+import { normalizeColombianMobile, PHONE_ERROR } from './phone';
 export { safeExternal,safeLink,allowedEmbed,isPublicMedia,activeCampaign } from './links';
 const text = (max = 180) => z.string().trim().min(1, 'Campo obligatorio').max(max);
 const optionalText = (max = 500) => z.string().trim().max(max).default('');
@@ -20,4 +21,5 @@ export const schemas = {
   site_settings: settingsSchema,
   leads: z.object({ status: z.enum(['nuevo','contactado','en-proceso','cerrado']) })
 };
-export const leadSchema = z.object({ name: text(100), email: z.email().max(254), phone: optionalText(30).refine(v => !v || /^[+\d\s()-]{7,30}$/.test(v), 'Teléfono inválido'), interest: optionalText(200), service_id: z.union([z.literal(''),z.uuid()]).optional().transform(v=>v||null), plan_id: z.union([z.literal(''),z.uuid()]).optional().transform(v=>v||null), message: text(3000).min(15, 'Escribe al menos 15 caracteres'), consent: z.literal(true, { error: 'Debes aceptar el tratamiento de datos' }), source: optionalText(200), website: z.literal(''), started: z.number().int().positive() });
+const attribution = (max: number) => z.string().trim().max(max).default('');
+export const leadSchema = z.object({ name: text(100), email: z.union([z.literal(''), z.email('Correo inválido').max(254)]).default(''), phone: z.string().trim().max(30).transform(v => normalizeColombianMobile(v) ?? '').refine(v => !!v, PHONE_ERROR), interest: optionalText(200), service_id: z.union([z.literal(''),z.uuid()]).optional().transform(v=>v||null), plan_id: z.union([z.literal(''),z.uuid()]).optional().transform(v=>v||null), message: optionalText(3000), consent: z.literal(true, { error: 'Debes aceptar el tratamiento de datos' }), source: optionalText(200), utm_source: attribution(200), utm_medium: attribution(200), utm_campaign: attribution(200), utm_content: attribution(200), referrer: attribution(500), landing_path: attribution(300), website: z.literal(''), started: z.number().int().positive() });

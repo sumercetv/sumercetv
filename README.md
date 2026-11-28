@@ -50,6 +50,16 @@ Aprueba la presentación institucional y reemplaza los textos provisionales de i
 - Cada vez que cambie el texto de la política, sube `SITE.privacy.version` y `SITE.privacy.effectiveDate`. Cada lead guarda `consent_at` (hora del servidor) y `privacy_version`.
 - Los cambios de esquema posteriores a las migraciones iniciales se entregan en `supabase/manual/AAAA-MM-DD_descripcion.sql` para cargarlos a mano en el SQL Editor, en orden de fecha. El código es compatible hacia atrás: si un archivo aún no se ejecutó, el formulario sigue guardando leads sin las columnas nuevas.
 
+## Captación de leads
+
+- **Formularios** (inicio, /servicios, /contacto): WhatsApp obligatorio (celular colombiano de 10 dígitos que empieza por 3, guardado como `+57XXXXXXXXXX`); correo y mensaje opcionales. Se prellenan con `?servicio=` o `?plan=`.
+- **Promesa de respuesta**: `SITE.responseHours` en `src/config/site.ts` (hoy 24 h).
+- **Atribución**: la primera visita de la sesión guarda en sessionStorage `utm_source`, `utm_medium`, `utm_campaign`, `utm_content`, `referrer` y `landing_path`; se envían con el lead y se ven en /admin → Solicitudes. Requiere `supabase/manual/2026-11-28_leads_whatsapp_atribucion.sql`.
+- **Analítica** (cada una solo si existe su variable): `NEXT_PUBLIC_GA_ID` (GA4), `NEXT_PUBLIC_META_PIXEL_ID` (Meta Pixel), `NEXT_PUBLIC_VERCEL_ANALYTICS=1` (Vercel Web Analytics, páginas vistas). Eventos: `generate_lead` / `Lead` al enviar con éxito, `click_whatsapp` (con ubicación), `click_cotizar` y `play_en_vivo`.
+- **Notificaciones** (opcionales, después de guardar): `LEADS_WEBHOOK_URL` (POST JSON para GoHighLevel/n8n) y `RESEND_API_KEY` + `LEADS_NOTIFY_EMAIL` (+ `LEADS_FROM_EMAIL` con dominio verificado). Un fallo solo queda en los logs de Vercel, sin datos personales.
+- **Hero**: CTA "Cotizar pauta" y "Ver en vivo". Video en loop opcional en `SITE.hero.videoUrl` (MP4/WebM HTTPS, sin audio); se carga después de la página y nunca con "reducir movimiento" ni ahorro de datos.
+- **/servicios**: los planes cuyo nombre empieza por "Plan" se destacan arriba; los que empiezan por "Pauta" se agrupan como pauta con sus salidas diarias; los servicios van en acordeón por categoría. "Desde $X" aparece solo si el plan tiene precio en /admin.
+
 ## Imágenes y logo
 
 El original `sumerce_tv_logoeditable.png` se conserva intacto. `public/brand/` contiene el recorte transparente, PNG/WebP optimizados, imagen social y Apple icon; `public/favicon.ico` contiene el favicon. `provenance.json` registra el hash y procedimiento. Se evaluó la extracción con image_gen, pero se descartó porque modificaba el relieve. El resultado final usa una máscara del fondo exterior conectado a los bordes sobre los píxeles originales: conserva los blancos internos y no redibuja el arte. El build regenera estos recursos mediante `scripts/extract-original-logo.mjs` y `scripts/prepare-brand.mjs`. Para regenerar solo tamaños desde el recorte existente: `npm run assets`.

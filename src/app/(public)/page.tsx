@@ -10,6 +10,8 @@ import { Icon } from '@/components/icons';
 import { ServiceCard, SponsorGrid } from '@/components/cards';
 import { ContactForm } from '@/components/contact-form';
 import { ScrollMotion } from '@/components/scroll-motion';
+import { HeroVideo } from '@/components/hero-video';
+import { SITE } from '@/config/site';
 import { isPublicMedia, safeLink } from '@/lib/validation';
 import type { Section } from '@/lib/types';
 export const revalidate = 300;
@@ -23,19 +25,21 @@ function SectionButton({ section, primary = false }: { section: Section; primary
 function photo(section: Section) {
   return section.image_url && isPublicMedia(section.image_url) ? { src: section.image_url, alt: section.image_alt || section.title } : null;
 }
+// Video opcional del hero (src/config/site.ts): solo HTTPS y formatos de video web.
+const heroVideo = /^https:\/\/[^\s"'<>]+\.(mp4|webm)(\?[^\s"'<>]*)?$/i.test(SITE.hero.videoUrl) ? SITE.hero.videoUrl : '';
 export default async function Home() {
   const { settings,sections,services,plans,sponsors,pages } = await getContent();
   const whatsapp = whatsappNumber(settings);
   const options = [...services.map(s=>({id:s.id,name:s.name,type:'service' as const})),...plans.map(p=>({id:p.id,name:p.name,type:'plan' as const}))];
   return <><JsonLd data={pageStructuredData(publicPageDetails(pages,'inicio'))}/>{!sections.some(s=>s.key==='hero') && <div className="container page-heading"><h1>SUMERCÉ TV</h1><p>Consulta la señal y comunícate con el equipo comercial.</p></div>}{sections.map(s=>{
     const image = photo(s);
-    if(s.key==='hero') { const cta = !!s.button_label && safeLink(s.button_url); return <section className="hero" id="inicio" key={s.id}><div className="container"><div className="hero-grid">
+    if(s.key==='hero') { const quote = sections.some(x=>x.key==='contact') ? '#cotizar' : '/contacto?servicio=Pauta%20publicitaria'; return <section className="hero" id="inicio" key={s.id}><div className="container"><div className="hero-grid">
       <div className="hero-copy"><span className="eyebrow">SUMERCÉ TV · Bienvenidos a nuestra señal</span><h1>{s.title}</h1><p>{s.body}</p>
         {s.items.length>0 && <ul className="hero-points">{s.items.map((item,i)=><li key={i}><Icon name="check" size={16}/>{item}</li>)}</ul>}
-        <div className="actions"><SectionButton section={s} primary/><Link href="/en-vivo" className={cta ? 'button button-outline' : 'button button-yellow'}><Icon name="play" size={18}/>Ver señal</Link></div>
+        <div className="actions"><a href={quote} className="button button-yellow" data-track="click_cotizar" data-location="hero">Cotizar pauta<Icon/></a><Link href="/en-vivo" className="button button-outline"><Icon name="play" size={18}/>Ver en vivo</Link></div>
         <span className="hero-note"><Icon name="signal" size={17}/>Televisión y nuevas posibilidades para tu marca</span></div>
       <div className="hero-screen"><div className="screen-frame">
-        {image ? <div className="screen-content screen-photo"><Image src={image.src} alt={image.alt} fill priority sizes="(max-width: 700px) 90vw, 45vw"/></div> : <div className="screen-content"><Brand large priority/><span className="screen-caption">Una señal que nos conecta</span></div>}
+        {image ? <div className="screen-content screen-photo"><Image src={image.src} alt={image.alt} fill priority sizes="(max-width: 700px) 90vw, 45vw"/>{heroVideo && <HeroVideo src={heroVideo}/>}</div> : <div className="screen-content"><Brand large priority/><span className="screen-caption">Una señal que nos conecta</span>{heroVideo && <HeroVideo src={heroVideo}/>}</div>}
         <div className="screen-footer"><span>SUMERCÉ TV / SEÑAL DIGITAL</span><Icon name="signal" size={18}/></div></div><Link href="/en-vivo" className="screen-sticker">Sintoniza nuevas posibilidades ↗</Link></div>
       </div></div>
       <nav className="ticker page-index" aria-label="En esta página"><ul>{pageIndex.filter(([,,key])=>sections.some(x=>x.key===key)).map(([text,id])=><li key={id}><a href={`#${id}`}>{text}</a></li>)}</ul></nav></section>; }
