@@ -1,6 +1,8 @@
 type SiteEnvironment = Record<string, string | undefined>;
 
 export const temporarySiteUrl = 'https://sumercetv.vercel.app';
+// Dominio final: la producción usa www.sumercetv.com; el apex también es válido.
+const finalOrigins = ['https://sumercetv.com', 'https://www.sumercetv.com'];
 
 export function resolveSiteUrl(env: SiteEnvironment = process.env): string {
   // Vercel's stable production domain takes precedence over a legacy placeholder.
@@ -31,8 +33,8 @@ export function validFormOrigin(origin: string | null, requestUrl: string, env: 
 
 export function canonicalRedirects(env: SiteEnvironment = process.env) {
   const origin = resolveSiteUrl(env);
-  // Activate only on the future domain, never redirect local or preview requests.
-  if (env.VERCEL_ENV !== 'production' || origin !== 'https://sumercetv.com') return [];
+  // Activate only on the final domain (with or without www), never redirect local or preview requests.
+  if (env.VERCEL_ENV !== 'production' || !finalOrigins.includes(origin)) return [];
   return [{ source: '/:path*', has: [{ type: 'host' as const, value: new URL(temporarySiteUrl).hostname.replaceAll('.', '\\.') }], destination: `${origin}/:path*`, permanent: true }];
 }
 
